@@ -143,23 +143,16 @@ FORM zf_split_upload.
        wa_out-id             = wa_arquivo-linha+8(3).
 
       APPEND wa_out TO it_out.
-      "Update
-        INSERT ztestudos_1 FROM wa_out.
       CLEAR  wa_out.
     ENDIF.
     ENDLOOP.
 
-PERFORM zf_commit_work.
-
-  ENDIF.
-ENDFORM.
-
-*&---------------------------------------------------------------------*
-*&      Form   zf_commit_work
-*&---------------------------------------------------------------------*
-FORM zf_commit_work.
-
-      IF sy-subrc IS INITIAL.
+    LOOP AT it_out INTO wa_out.
+    "Update
+      INSERT ztestudos_1 FROM wa_out.
+      CLEAR  wa_out.
+    "Commit
+     IF sy-subrc IS INITIAL.
       COMMIT WORK AND WAIT. "COMMIT WORK AND WAIT dá commit no banco de dados
 
       MESSAGE s208(00) WITH 'SALVO COM SUCESSO!'.
@@ -167,5 +160,7 @@ FORM zf_commit_work.
       ROLLBACK WORK. "ROLLBACK WORK desfaz tudo o que aconteceu na operação
       MESSAGE s208(00) WITH  'ERRO AO GRAVAR!' DISPLAY LIKE 'E'.
     ENDIF.
+   ENDLOOP.
 
+  ENDIF.
 ENDFORM.
