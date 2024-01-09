@@ -127,10 +127,45 @@ START-OF-SELECTION.
      IF sy-subrc EQ '0'.
        PERFORM f_update_venda.
      ELSE.
-
+       PERFORM f_pop_up_cadastra_venda.
      ENDIF.
 
  ENDFORM.
+
+*&---------------------------------------------------------------------*
+*&      Form  f_pop_up_cadastra_venda
+*&---------------------------------------------------------------------*
+FORM f_pop_up_cadastra_venda.
+  DATA: vl_resposta TYPE c. "variável que receberá o parâmetro de saída do clique. Sim(001) ou Não(002).
+
+  CALL FUNCTION 'POPUP_TO_CONFIRM'
+  EXPORTING
+   TITLEBAR                    = 'Informação'  "Título
+   text_question               = 'Venda já cadastrada, deseja modificar?'   "Texto da pergunta do pupup
+   TEXT_BUTTON_1               = 'Sim'(001)  "Texto do botão 1
+*   ICON_BUTTON_1               = ' '   "Ícone do botão 1
+   TEXT_BUTTON_2               = 'Não'(002) "Texto do botão 2
+*   ICON_BUTTON_2               = ' '  "Ícone do botão 2
+   DISPLAY_CANCEL_BUTTON       = 'X'
+ IMPORTING
+   ANSWER                      = vl_resposta.   "Parâmetro de saída
+
+*Lógica para validar a escolha do usuário:
+    IF vl_resposta EQ '1'.
+      PERFORM f_modifica_venda.
+
+    ELSEIF vl_resposta EQ '2'.
+       "Instrução (Caso deixe aqui sem intrução, o popup fecha automaticamente após o clique e volta para a tela de seleção)
+    ENDIF.
+
+ENDFORM.
+
+*&---------------------------------------------------------------------*
+*&      Form  f_modifica_venda
+*&---------------------------------------------------------------------*
+FORM f_modifica_venda.
+
+ENDFORM.
 
 *&---------------------------------------------------------------------*
 *&      Form  f_update_venda
@@ -144,6 +179,16 @@ ls_ztbvenda-data_da_venda  = p_dat_vd.
 ls_ztbvenda-produto        = p_prod.
 ls_ztbvenda-valor_da_venda = p_valor.
 
+      INSERT ztbvenda FROM ls_ztbvenda.
+
+      IF sy-subrc IS INITIAL.
+        COMMIT WORK AND WAIT. "COMMIT WORK AND WAIT dá commit no banco de dados
+
+        MESSAGE s208(00) WITH 'SALVO COM SUCESSO!'.
+      ELSE.
+        ROLLBACK WORK. "ROLLBACK WORK desfaz tudo o que aconteceu na operação
+        MESSAGE s208(00) WITH 'ERRO AO GRAVAR!'DISPLAY LIKE 'E'.
+      ENDIF.
 ENDFORM.
 
 *&---------------------------------------------------------------------*
