@@ -3,12 +3,12 @@
 *&---------------------------------------------------------------------*
 *&
 *&---------------------------------------------------------------------*
-REPORT ZR_DESAFIO_ROBSON_JULIANDO.
+REPORT zr_desafio_robson_juliando.
 
 *&---------------------------------------------------------------------*
 *                              Tables                                  *
 *&---------------------------------------------------------------------*
-TABLES: ZTBVENDA.
+TABLES: ztbvenda.
 
 *&---------------------------------------------------------------------*
 *                         Tela de seleção                              *
@@ -89,16 +89,16 @@ START-OF-SELECTION.
 *&---------------------------------------------------------------------*
  FORM f_update_cliente.
 
- DATA LS_ZTBCLIENTE TYPE ZTBCLIENTE.
+ DATA ls_ztbcliente TYPE ztbcliente.
 
-      LS_ZTBCLIENTE-cpf = p_cpf.
-      LS_ZTBCLIENTE-email = p_email.
-      LS_ZTBCLIENTE-endereco = p_end.
-      LS_ZTBCLIENTE-nome_do_cliente = p_nome.
-      LS_ZTBCLIENTE-rg = p_rg.
-      LS_ZTBCLIENTE-telefone = p_tel.
+      ls_ztbcliente-cpf = p_cpf.
+      ls_ztbcliente-email = p_email.
+      ls_ztbcliente-endereco = p_end.
+      ls_ztbcliente-nome_do_cliente = p_nome.
+      ls_ztbcliente-rg = p_rg.
+      ls_ztbcliente-telefone = p_tel.
 
-      INSERT ZTBCLIENTE FROM LS_ZTBCLIENTE.
+      INSERT ztbcliente FROM ls_ztbcliente.
 
       IF sy-subrc IS INITIAL.
         COMMIT WORK AND WAIT. "COMMIT WORK AND WAIT dá commit no banco de dados
@@ -114,8 +114,37 @@ START-OF-SELECTION.
 *&      Form  f_cadastra_venda
 *&---------------------------------------------------------------------*
  FORM f_cadastra_venda.
+  DATA: lt_ztbvenda TYPE TABLE OF ztbvenda.
+
+   SELECT RG,
+          COD_DA_VENDA,
+          CPF
+     INTO TABLE @lt_ztbvenda
+     FROM ztbvenda
+     WHERE RG  EQ @p_rg2 AND
+           CPF EQ @p_cpf2.
+
+     IF sy-subrc EQ '0'.
+       PERFORM f_update_venda.
+     ELSE.
+
+     ENDIF.
 
  ENDFORM.
+
+*&---------------------------------------------------------------------*
+*&      Form  f_update_venda
+*&---------------------------------------------------------------------*
+FORM f_update_venda.
+DATA: ls_ztbvenda TYPE ztbvenda.
+
+ls_ztbvenda-rg             = p_rg2.
+ls_ztbvenda-cpf            = p_cpf2.
+ls_ztbvenda-data_da_venda  = p_dat_vd.
+ls_ztbvenda-produto        = p_prod.
+ls_ztbvenda-valor_da_venda = p_valor.
+
+ENDFORM.
 
 *&---------------------------------------------------------------------*
 *&      Form  f_relatorio_de_vendas
