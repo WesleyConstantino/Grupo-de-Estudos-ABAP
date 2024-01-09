@@ -23,19 +23,19 @@ SELECTION-SCREEN END OF BLOCK b0.
 SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
 *PARAMETERS
 "Cadastrar cliente -> rb_cli
-PARAMETERS: p_nome TYPE ZTBCLIENTE-nome_do_cliente MODIF ID rb1 OBLIGATORY,  "Modifico o ID dos campos que quero eventualmente ocultar com "MODIF ID".
-            p_rg TYPE ZTBCLIENTE-rg MODIF ID prm OBLIGATORY,
-            p_cpf TYPE ZTBCLIENTE-cpf MODIF ID prm OBLIGATORY,
+PARAMETERS: p_nome TYPE ZTBCLIENTE-nome_do_cliente MODIF ID rb1, "OBLIGATORY,  "Modifico o ID dos campos que quero eventualmente ocultar com "MODIF ID".
+            p_rg TYPE ZTBCLIENTE-rg MODIF ID prm, "OBLIGATORY,
+            p_cpf TYPE ZTBCLIENTE-cpf MODIF ID prm, " OBLIGATORY,
             p_end TYPE ZTBCLIENTE-endereco MODIF ID prm,
             p_email TYPE ZTBCLIENTE-email MODIF ID prm,
             p_tel TYPE ZTBCLIENTE-telefone MODIF ID prm.
 
 "Cadastrar venda -> rb_cven
-PARAMETERS: p_rg2 TYPE ZTBVENDA-rg MODIF ID rb2 OBLIGATORY,
-            p_cpf2 TYPE ZTBVENDA-cpf MODIF ID rb2 OBLIGATORY,
-            p_dat_vd TYPE ZTBVENDA-data_da_venda MODIF ID rb2 OBLIGATORY,
-            p_prod TYPE ZTBVENDA-produto MODIF ID rb2 OBLIGATORY,
-            p_valor TYPE ZTBVENDA-valor_da_venda MODIF ID rb2 OBLIGATORY.
+PARAMETERS: p_rg2 TYPE ZTBVENDA-rg MODIF ID rb2 , "OBLIGATORY,
+            p_cpf2 TYPE ZTBVENDA-cpf MODIF ID rb2 , "OBLIGATORY,
+            p_dat_vd TYPE ZTBVENDA-data_da_venda MODIF ID rb2 , "OBLIGATORY,
+            p_prod TYPE ZTBVENDA-produto MODIF ID rb2 , "OBLIGATORY,
+            p_valor TYPE ZTBVENDA-valor_da_venda MODIF ID rb2. "OBLIGATORY.
 
 *SELECT-OPTIONS
 "Relatório de vendas
@@ -49,6 +49,9 @@ SELECTION-SCREEN END OF BLOCK b1.
 *"Evento para reconhecer os ciques do radiobutton e mudar as telas
 AT SELECTION-SCREEN OUTPUT.
   PERFORM f_modifica_tela.
+
+"Início da execusão
+START-OF-SELECTION.
   IF rb_cli EQ 'X'.
     PERFORM f_cadastra_cliente.
   ELSEIF rb_cven EQ 'X'.
