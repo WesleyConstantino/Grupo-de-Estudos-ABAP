@@ -24,11 +24,11 @@ SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
 *PARAMETERS
 "Cadastrar cliente -> rb_cli
 PARAMETERS: p_nome TYPE ZTBCLIENTE-nome_do_cliente MODIF ID rb1, "OBLIGATORY,  "Modifico o ID dos campos que quero eventualmente ocultar com "MODIF ID".
-            p_rg TYPE ZTBCLIENTE-rg MODIF ID prm, "OBLIGATORY,
-            p_cpf TYPE ZTBCLIENTE-cpf MODIF ID prm, " OBLIGATORY,
-            p_end TYPE ZTBCLIENTE-endereco MODIF ID prm,
-            p_email TYPE ZTBCLIENTE-email MODIF ID prm,
-            p_tel TYPE ZTBCLIENTE-telefone MODIF ID prm.
+            p_rg TYPE ZTBCLIENTE-rg MODIF ID rb1, "OBLIGATORY,
+            p_cpf TYPE ZTBCLIENTE-cpf MODIF ID rb1, " OBLIGATORY,
+            p_end TYPE ZTBCLIENTE-endereco MODIF ID rb1,
+            p_email TYPE ZTBCLIENTE-email MODIF ID rb1,
+            p_tel TYPE ZTBCLIENTE-telefone MODIF ID rb1.
 
 "Cadastrar venda -> rb_cven
 PARAMETERS: p_rg2 TYPE ZTBVENDA-rg MODIF ID rb2 , "OBLIGATORY,
@@ -173,6 +173,8 @@ ENDFORM.
 FORM f_update_venda.
 DATA: ls_ztbvenda TYPE ztbvenda.
 
+PERFORM f_gera_cod_automatico.
+
 ls_ztbvenda-rg             = p_rg2.
 ls_ztbvenda-cpf            = p_cpf2.
 ls_ztbvenda-data_da_venda  = p_dat_vd.
@@ -190,6 +192,13 @@ ls_ztbvenda-valor_da_venda = p_valor.
         MESSAGE s208(00) WITH 'ERRO AO GRAVAR!'DISPLAY LIKE 'E'.
       ENDIF.
 ENDFORM.
+
+*&---------------------------------------------------------------------*
+*&      Form  f_relatorio_de_vendas
+*&---------------------------------------------------------------------*
+ FORM f_gera_cod_automatico.
+
+ ENDFORM.
 
 *&---------------------------------------------------------------------*
 *&      Form  f_relatorio_de_vendas
@@ -246,7 +255,7 @@ FORM f_modifica_tela .
     ENDIF.
 
 *rb_rven
-    IF rb_cven EQ 'X'.
+    IF rb_rven EQ 'X'.
       IF screen-group1 EQ 'RB3'.
         screen-invisible = 0.
         screen-input     = 1.
