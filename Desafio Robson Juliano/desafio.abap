@@ -11,6 +11,11 @@ REPORT zr_desafio_robson_juliando.
 TABLES: ztbvenda.
 
 *&---------------------------------------------------------------------*
+*                           Workareas                                  *
+*&---------------------------------------------------------------------*
+DATA: gv_ztbvenda TYPE ztbvenda.
+
+*&---------------------------------------------------------------------*
 *                         Tela de seleção                              *
 *&---------------------------------------------------------------------*
 SELECTION-SCREEN BEGIN OF BLOCK b0 WITH FRAME TITLE text-000.
@@ -88,17 +93,16 @@ START-OF-SELECTION.
 *&      Form  f_update_cliente
 *&---------------------------------------------------------------------*
  FORM f_update_cliente.
+ DATA: lv_ztbcliente TYPE ztbcliente.
 
- DATA ls_ztbcliente TYPE ztbcliente.
+      lv_ztbcliente-cpf = p_cpf.
+      lv_ztbcliente-email = p_email.
+      lv_ztbcliente-endereco = p_end.
+      lv_ztbcliente-nome_do_cliente = p_nome.
+      lv_ztbcliente-rg = p_rg.
+      lv_ztbcliente-telefone = p_tel.
 
-      ls_ztbcliente-cpf = p_cpf.
-      ls_ztbcliente-email = p_email.
-      ls_ztbcliente-endereco = p_end.
-      ls_ztbcliente-nome_do_cliente = p_nome.
-      ls_ztbcliente-rg = p_rg.
-      ls_ztbcliente-telefone = p_tel.
-
-      INSERT ztbcliente FROM ls_ztbcliente.
+      INSERT ztbcliente FROM lv_ztbcliente.
 
       IF sy-subrc IS INITIAL.
         COMMIT WORK AND WAIT. "COMMIT WORK AND WAIT dá commit no banco de dados
@@ -125,9 +129,9 @@ START-OF-SELECTION.
            CPF EQ @p_cpf2.
 
      IF sy-subrc EQ '0'.
-       PERFORM f_update_venda.
-     ELSE.
        PERFORM f_pop_up_cadastra_venda.
+     ELSE.
+       PERFORM f_update_venda.
      ENDIF.
 
  ENDFORM.
@@ -171,17 +175,16 @@ ENDFORM.
 *&      Form  f_update_venda
 *&---------------------------------------------------------------------*
 FORM f_update_venda.
-DATA: ls_ztbvenda TYPE ztbvenda.
 
 PERFORM f_gera_cod_automatico.
 
-ls_ztbvenda-rg             = p_rg2.
-ls_ztbvenda-cpf            = p_cpf2.
-ls_ztbvenda-data_da_venda  = p_dat_vd.
-ls_ztbvenda-produto        = p_prod.
-ls_ztbvenda-valor_da_venda = p_valor.
+gv_ztbvenda-rg             = p_rg2.
+gv_ztbvenda-cpf            = p_cpf2.
+gv_ztbvenda-data_da_venda  = p_dat_vd.
+gv_ztbvenda-produto        = p_prod.
+gv_ztbvenda-valor_da_venda = p_valor.
 
-      INSERT ztbvenda FROM ls_ztbvenda.
+      INSERT ztbvenda FROM gv_ztbvenda.
 
       IF sy-subrc IS INITIAL.
         COMMIT WORK AND WAIT. "COMMIT WORK AND WAIT dá commit no banco de dados
@@ -197,6 +200,13 @@ ENDFORM.
 *&      Form  f_relatorio_de_vendas
 *&---------------------------------------------------------------------*
  FORM f_gera_cod_automatico.
+
+     SELECT MAX( cod_da_venda )  "Seleciona o maior valor existente no campo ID
+     FROM ztbvenda
+     INTO @DATA(lv_cod_da_venda).
+
+ lv_cod_da_venda = lv_cod_da_venda + 1.
+ gv_ztbvenda-cod_da_venda = lv_cod_da_venda.
 
  ENDFORM.
 
