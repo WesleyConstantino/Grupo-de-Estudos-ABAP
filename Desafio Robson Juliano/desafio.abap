@@ -107,7 +107,7 @@ START-OF-SELECTION.
       IF sy-subrc IS INITIAL.
         COMMIT WORK AND WAIT. "COMMIT WORK AND WAIT dá commit no banco de dados
 
-        MESSAGE s208(00) WITH 'SALVO COM SUCESSO!'.
+        MESSAGE s208(00) WITH 'CLIENTE CADASTRADO COM SUCESSO!'.
       ELSE.
         ROLLBACK WORK. "ROLLBACK WORK desfaz tudo o que aconteceu na operação
         MESSAGE s208(00) WITH 'ERRO AO GRAVAR!'DISPLAY LIKE 'E'.
@@ -168,6 +168,16 @@ ENDFORM.
 *&      Form  f_modifica_venda
 *&---------------------------------------------------------------------*
 FORM f_modifica_venda.
+
+*  MODIFY ztbvenda FROM gv_ztbvenda.
+*
+*      IF sy-subrc EQ '0'.
+*        COMMIT WORK AND WAIT.
+*        MESSAGE s208(00) WITH 'MODIFICADO COM SUCESSO!'.
+*      ELSE.
+*        ROLLBACK WORK.
+*        MESSAGE s208(00) WITH 'ERRO AO MODIFICAR!'DISPLAY LIKE 'E'.
+*      ENDIF.
 
 ENDFORM.
 
