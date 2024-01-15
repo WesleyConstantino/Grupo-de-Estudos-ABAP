@@ -11,6 +11,23 @@ REPORT zr_desafio_robson_juliando.
 TABLES: ztbvenda.
 
 *&---------------------------------------------------------------------*
+*                                 TYPES                                *
+*&---------------------------------------------------------------------*
+TYPES:
+*------* ty_OUT
+      BEGIN OF ty_out,
+         cod_da_venda      TYPE ztbvenda-cod_da_venda,
+         produto           TYPE ztbvenda-produto,
+         nome_do_cliente   TYPE ztbcliente-nome_do_cliente,
+         rg                TYPE ztbvenda-rg,
+         cpf               TYPE ztbvenda-cpf,
+         endereco          TYPE ztbcliente-endereco,
+         email             TYPE ztbcliente-email,
+         telefone          TYPE ztbcliente-telefone,
+         valor_da_venda    TYPE ztbvenda-valor_da_venda,
+       END OF ty_out.
+
+*&---------------------------------------------------------------------*
 *                           Workareas                                  *
 *&---------------------------------------------------------------------*
 DATA: gv_ztbvenda TYPE ztbvenda.
@@ -18,37 +35,37 @@ DATA: gv_ztbvenda TYPE ztbvenda.
 *&---------------------------------------------------------------------*
 *                         Tela de seleção                              *
 *&---------------------------------------------------------------------*
-SELECTION-SCREEN BEGIN OF BLOCK b0 WITH FRAME TITLE text-000.
+SELECTION-SCREEN BEGIN OF BLOCK b0 WITH FRAME TITLE TEXT-000.
 *Radio Buttons
 PARAMETERS: rb_cli RADIOBUTTON GROUP g1 DEFAULT 'X' USER-COMMAND comando.
 PARAMETERS: rb_cven RADIOBUTTON GROUP g1.
 PARAMETERS: rb_rven RADIOBUTTON GROUP g1.
 SELECTION-SCREEN END OF BLOCK b0.
 
-SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
 *PARAMETERS
 "Cadastrar cliente -> rb_cli
-PARAMETERS: p_nome TYPE ZTBCLIENTE-nome_do_cliente MODIF ID rb1, "OBLIGATORY,  "Modifico o ID dos campos que quero eventualmente ocultar com "MODIF ID".
-            p_rg TYPE ZTBCLIENTE-rg MODIF ID rb1, "OBLIGATORY,
-            p_cpf TYPE ZTBCLIENTE-cpf MODIF ID rb1, " OBLIGATORY,
-            p_end TYPE ZTBCLIENTE-endereco MODIF ID rb1,
-            p_email TYPE ZTBCLIENTE-email MODIF ID rb1,
-            p_tel TYPE ZTBCLIENTE-telefone MODIF ID rb1.
+PARAMETERS: p_nome TYPE ztbcliente-nome_do_cliente MODIF ID rb1, "OBLIGATORY,  "Modifico o ID dos campos que quero eventualmente ocultar com "MODIF ID".
+            p_rg TYPE ztbcliente-rg MODIF ID rb1, "OBLIGATORY,
+            p_cpf TYPE ztbcliente-cpf MODIF ID rb1, " OBLIGATORY,
+            p_end TYPE ztbcliente-endereco MODIF ID rb1,
+            p_email TYPE ztbcliente-email MODIF ID rb1,
+            p_tel TYPE ztbcliente-telefone MODIF ID rb1.
 
 "Cadastrar venda -> rb_cven
-PARAMETERS: p_rg2 TYPE ZTBVENDA-rg MODIF ID rb2 , "OBLIGATORY,
-            p_cpf2 TYPE ZTBVENDA-cpf MODIF ID rb2 , "OBLIGATORY,
-            p_dat_vd TYPE ZTBVENDA-data_da_venda MODIF ID rb2 , "OBLIGATORY,
-            p_prod TYPE ZTBVENDA-produto MODIF ID rb2 , "OBLIGATORY,
-            p_valor TYPE ZTBVENDA-valor_da_venda MODIF ID rb2. "OBLIGATORY.
+PARAMETERS: p_rg2 TYPE ztbvenda-rg MODIF ID rb2 , "OBLIGATORY,
+            p_cpf2 TYPE ztbvenda-cpf MODIF ID rb2 , "OBLIGATORY,
+            p_dat_vd TYPE ztbvenda-data_da_venda MODIF ID rb2 , "OBLIGATORY,
+            p_prod TYPE ztbvenda-produto MODIF ID rb2 , "OBLIGATORY,
+            p_valor TYPE ztbvenda-valor_da_venda MODIF ID rb2. "OBLIGATORY.
 
 *SELECT-OPTIONS
 "Relatório de vendas
-SELECT-OPTIONS: s_cod_vd FOR ZTBVENDA-cod_da_venda MODIF ID rb3,
-                s_rg FOR ZTBVENDA-rg MODIF ID rb3,
-                s_cpf FOR ZTBVENDA-cpf MODIF ID rb3,
-                s_dat_vd FOR ZTBVENDA-data_da_venda MODIF ID rb3,
-                s_prod FOR ZTBVENDA-produto MODIF ID rb3.
+SELECT-OPTIONS: s_cod_vd FOR ztbvenda-cod_da_venda MODIF ID rb3,
+                s_rg FOR ztbvenda-rg MODIF ID rb3,
+                s_cpf FOR ztbvenda-cpf MODIF ID rb3,
+                s_dat_vd FOR ztbvenda-data_da_venda MODIF ID rb3,
+                s_prod FOR ztbvenda-produto MODIF ID rb3.
 SELECTION-SCREEN END OF BLOCK b1.
 
 *"Evento para reconhecer os ciques do radiobutton e mudar as telas
@@ -70,18 +87,18 @@ START-OF-SELECTION.
 *&---------------------------------------------------------------------*
  FORM f_cadastra_cliente.
 
- DATA: LT_ZTBCLIENTE TYPE TABLE OF ZTBCLIENTE.
+ DATA: lt_ztbcliente TYPE TABLE OF ztbcliente.
 
-   SELECT NOME_DO_CLIENTE,
-          RG,
-          CPF
-     INTO TABLE @LT_ZTBCLIENTE
-     FROM ZTBCLIENTE
-     WHERE NOME_DO_CLIENTE EQ @p_nome AND
-           RG EQ  @p_rg AND
-           CPF EQ @p_cpf.
+   SELECT nome_do_cliente,
+          rg,
+          cpf
+     INTO TABLE @lt_ztbcliente
+     FROM ztbcliente
+     WHERE nome_do_cliente EQ @p_nome AND
+           rg EQ  @p_rg AND
+           cpf EQ @p_cpf.
 
-    IF LT_ZTBCLIENTE IS NOT INITIAL.
+    IF lt_ztbcliente IS NOT INITIAL.
       MESSAGE s208(00) WITH 'Cliente já cadastrado.' DISPLAY LIKE 'E'.
     ELSE.
       PERFORM f_update_cliente.
@@ -120,13 +137,13 @@ START-OF-SELECTION.
  FORM f_cadastra_venda.
   DATA: lt_ztbvenda TYPE TABLE OF ztbvenda.
 
-   SELECT RG,
-          COD_DA_VENDA,
-          CPF
+   SELECT rg,
+          cod_da_venda,
+          cpf
      INTO TABLE @lt_ztbvenda
      FROM ztbvenda
-     WHERE RG  EQ @p_rg2 AND
-           CPF EQ @p_cpf2.
+     WHERE rg  EQ @p_rg2 AND
+           cpf EQ @p_cpf2.
 
      IF sy-subrc EQ '0'.
        PERFORM f_pop_up_cadastra_venda.
@@ -144,15 +161,15 @@ FORM f_pop_up_cadastra_venda.
 
   CALL FUNCTION 'POPUP_TO_CONFIRM'
   EXPORTING
-   TITLEBAR                    = 'Informação'  "Título
+   titlebar                    = 'Informação'  "Título
    text_question               = 'Venda já cadastrada, deseja modificar?'   "Texto da pergunta do pupup
-   TEXT_BUTTON_1               = 'Sim'(001)  "Texto do botão 1
+   text_button_1               = 'Sim'(001)  "Texto do botão 1
 *   ICON_BUTTON_1               = ' '   "Ícone do botão 1
-   TEXT_BUTTON_2               = 'Não'(002) "Texto do botão 2
+   text_button_2               = 'Não'(002) "Texto do botão 2
 *   ICON_BUTTON_2               = ' '  "Ícone do botão 2
-   DISPLAY_CANCEL_BUTTON       = 'X'
+   display_cancel_button       = 'X'
  IMPORTING
-   ANSWER                      = vl_resposta.   "Parâmetro de saída
+   answer                      = vl_resposta.   "Parâmetro de saída
 
 *Lógica para validar a escolha do usuário:
     IF vl_resposta EQ '1'.
