@@ -28,6 +28,11 @@ TYPES:
        END OF ty_out.
 
 *&---------------------------------------------------------------------*
+*                        Tabelas Internas                              *
+*&---------------------------------------------------------------------*
+DATA: gt_out TYPE TABLE OF ty_out.
+
+*&---------------------------------------------------------------------*
 *                           Workareas                                  *
 *&---------------------------------------------------------------------*
 DATA: gv_ztbvenda TYPE ztbvenda.
@@ -255,6 +260,32 @@ ENDFORM.
 *&      Form  f_relatorio_de_vendas
 *&---------------------------------------------------------------------*
  FORM f_relatorio_de_vendas.
+
+    SELECT cod_da_venda,
+           produto,
+           rg,
+           cpf,
+           valor_da_venda
+      FROM ztbvenda
+      INTO TABLE @DATA(lt_ztbvenda)
+      WHERE cod_da_venda    IN @s_cod_vd AND
+            produto         IN @s_rg     AND
+            rg              IN @s_cpf    AND
+            cpf             IN @s_dat_vd AND
+            valor_da_venda  IN @s_prod.
+
+      IF sy-subrc IS INITIAL.
+
+      SELECT nome_do_cliente,
+             endereco,
+             email,
+             telefone
+         INTO TABLE @DATA(lt_ZTBCLIENTE)
+         FROM ZTBCLIENTE
+         WHERE rg  IN @s_rg AND
+               cpf IN @s_cpf.
+
+      ENDIF.
 
  ENDFORM.
 
