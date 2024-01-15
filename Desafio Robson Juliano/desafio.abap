@@ -169,15 +169,29 @@ ENDFORM.
 *&---------------------------------------------------------------------*
 FORM f_modifica_venda.
 
-*  MODIFY ztbvenda FROM gv_ztbvenda.
-*
-*      IF sy-subrc EQ '0'.
-*        COMMIT WORK AND WAIT.
-*        MESSAGE s208(00) WITH 'MODIFICADO COM SUCESSO!'.
-*      ELSE.
-*        ROLLBACK WORK.
-*        MESSAGE s208(00) WITH 'ERRO AO MODIFICAR!'DISPLAY LIKE 'E'.
-*      ENDIF.
+gv_ztbvenda-rg             = p_rg2.
+gv_ztbvenda-cpf            = p_cpf2.
+gv_ztbvenda-data_da_venda  = p_dat_vd.
+gv_ztbvenda-produto        = p_prod.
+gv_ztbvenda-valor_da_venda = p_valor.
+
+SELECT cod_da_venda
+  FROM ztbvenda
+  INTO @DATA(lv_cod)
+  WHERE rg EQ @p_rg2.
+ENDSELECT.
+
+gv_ztbvenda-cod_da_venda = lv_cod.
+
+MODIFY ztbvenda FROM gv_ztbvenda.
+
+      IF sy-subrc EQ '0'.
+        COMMIT WORK AND WAIT.
+        MESSAGE s208(00) WITH 'MODIFICADO COM SUCESSO!'.
+      ELSE.
+        ROLLBACK WORK.
+        MESSAGE s208(00) WITH 'ERRO AO MODIFICAR!'DISPLAY LIKE 'E'.
+      ENDIF.
 
 ENDFORM.
 
