@@ -35,7 +35,8 @@ DATA: gt_out TYPE TABLE OF ty_out.
 *&---------------------------------------------------------------------*
 *                           Workareas                                  *
 *&---------------------------------------------------------------------*
-DATA: gv_ztbvenda TYPE ztbvenda.
+DATA: gv_ztbvenda TYPE ztbvenda,
+      gv_out LIKE LINE OF gt_out.
 
 *&---------------------------------------------------------------------*
 *                         Tela de seleção                              *
@@ -279,12 +280,45 @@ ENDFORM.
       SELECT nome_do_cliente,
              endereco,
              email,
-             telefone
+             telefone,
+             rg,
+             cpf
          INTO TABLE @DATA(lt_ZTBCLIENTE)
-         FROM ZTBCLIENTE
+         FROM ztbcliente
          WHERE rg  IN @s_rg AND
                cpf IN @s_cpf.
 
+      IF sy-subrc IS INITIAL.
+*Monta t_out:
+      DATA: ls_ztbvenda LIKE LINE OF  lt_ztbvenda,
+            ls_ZTBCLIENTE LIKE LINE OF  lt_ZTBCLIENTE.
+
+        LOOP AT lt_ztbvenda INTO ls_ztbvenda.
+
+        gv_out-cod_da_venda   = ls_ztbvenda-cod_da_venda.
+        gv_out-produto        = ls_ztbvenda-produto.
+        gv_out-rg             = ls_ztbvenda-rg.
+        gv_out-cpf            = ls_ztbvenda-cpf.
+        gv_out-valor_da_venda = ls_ztbvenda-valor_da_venda.
+
+      READ TABLE lt_ZTBCLIENTE INTO ls_ZTBCLIENTE WITH KEY rg  = s_rg
+                                                           cpf = ls_ztbvenda-cpf.
+
+      IF sy-subrc IS INITIAL.
+
+      gv_out-nome_do_cliente = ls_ZTBCLIENTE-nome_do_cliente.
+      gv_out-endereco        = ls_ZTBCLIENTE-endereco.
+      gv_out-email           = ls_ZTBCLIENTE-email.
+      gv_out-telefone        = ls_ZTBCLIENTE-telefone.
+
+      ENDIF.
+      APPEND gv_out TO gt_out.
+      CLEAR: gv_out,
+             ls_ztbvenda,
+             ls_ztbvenda.
+
+      ENDLOOP.
+      ENDIF.
       ENDIF.
 
  ENDFORM.
