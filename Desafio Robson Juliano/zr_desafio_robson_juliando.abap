@@ -309,6 +309,7 @@ ENDFORM.
 
       IF sy-subrc IS INITIAL.
 
+"Dump proposital para não sair dados nos campos de cliente no ALV:
 *      SELECT nome_do_cliente,
 *             endereco,
 *             email,
