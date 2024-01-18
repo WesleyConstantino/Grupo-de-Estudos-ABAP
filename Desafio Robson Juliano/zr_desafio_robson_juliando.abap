@@ -308,7 +308,6 @@ ENDFORM.
             valor_da_venda  IN s_val_vd.
 
       IF sy-subrc IS INITIAL.
-
 "Dump proposital para não sair dados nos campos de cliente no ALV:
 *      SELECT nome_do_cliente,
 *             endereco,
@@ -332,6 +331,8 @@ ENDFORM.
         PERFORM f_monta_it_out.
       ENDIF.
       ENDIF.
+
+  MESSAGE 'Nenhum registro encontrado' TYPE 'S' DISPLAY LIKE 'W'.
 
  ENDFORM.
 
@@ -366,10 +367,7 @@ FORM f_monta_it_out.
   ENDLOOP.
 
   IF lines( it_out ) > 0.
-
     CALL SCREEN 100.
-  ELSE.
-    MESSAGE 'Nenhum registro encontrado' TYPE 'S' DISPLAY LIKE 'W'.
   ENDIF.
 
 ENDFORM.
