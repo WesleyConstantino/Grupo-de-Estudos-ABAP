@@ -106,17 +106,17 @@ START-OF-SELECTION.
   IF rb_cli EQ 'X'.
 
     IF p_nome IS NOT INITIAL AND p_rg IS NOT INITIAL AND p_cpf IS NOT INITIAL.
-      MESSAGE s208(00) WITH 'Preencha os dados obrigatórios!' DISPLAY LIKE 'E'.
-    ELSE.
      PERFORM f_cadastra_cliente.
+    ELSE.
+     MESSAGE s208(00) WITH 'Preencha os dados obrigatórios!' DISPLAY LIKE 'E'.
     ENDIF.
 
   ELSEIF rb_cven EQ 'X'.
 
     IF p_dat_vd IS NOT INITIAL AND p_rg2 IS NOT INITIAL AND p_cpf2 IS NOT INITIAL AND p_prod IS NOT INITIAL AND p_valor IS NOT INITIAL.
-      MESSAGE s208(00) WITH 'Preencha os dados obrigatórios!' DISPLAY LIKE 'E'.
-    ELSE.
      PERFORM  f_cadastra_venda.
+    ELSE.
+     MESSAGE s208(00) WITH 'Preencha os dados obrigatórios!' DISPLAY LIKE 'E'.
     ENDIF.
 
   ELSEIF rb_rven  EQ 'X'.
