@@ -14,7 +14,7 @@ TABLES: ztbvenda.
 *                                 TYPES                                *
 *&---------------------------------------------------------------------*
 TYPES:
-*------* ty_OUT
+*------* ty_out
       BEGIN OF ty_out,
          cod_da_venda      TYPE ztbvenda-cod_da_venda,
          produto           TYPE ztbvenda-produto,
@@ -25,31 +25,50 @@ TYPES:
          email             TYPE ztbcliente-email,
          telefone          TYPE ztbcliente-telefone,
          valor_da_venda    TYPE ztbvenda-valor_da_venda,
-       END OF ty_out.
+       END OF ty_out,
+
+*<---- 21/01/2024 - Estudos - Wesley Constantino - Início
+*------* ty_download
+      BEGIN OF ty_download,
+         linha(2000) TYPE c,
+      END   OF ty_download.
+*<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
 *&---------------------------------------------------------------------*
 *                        Tabelas Internas                              *
 *&---------------------------------------------------------------------*
 DATA: it_out        TYPE TABLE OF ty_out,
       it_ztbcliente TYPE TABLE OF ztbcliente,
-      it_ztbvenda   TYPE TABLE OF ztbvenda.
+      it_ztbvenda   TYPE TABLE OF ztbvenda,
+*<---- 21/01/2024 - Estudos - Wesley Constantino - Início
+      it_download   TYPE TABLE OF ty_download.
+*<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
 *&---------------------------------------------------------------------*
 *                           Workareas                                  *
 *&---------------------------------------------------------------------*
 DATA: wa_ztbvenda   TYPE ztbvenda,
       wa_ztbcliente TYPE ztbcliente,
-      wa_out        LIKE LINE OF it_out.
+      wa_out        LIKE LINE OF it_out,
+*<---- 21/01/2024 - Estudos - Wesley Constantino - Início
+      wa_download   TYPE ty_download.
+*<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
 *&---------------------------------------------------------------------*
 *                            Variáveis                                 *
 *&---------------------------------------------------------------------*
-DATA: lv_okcode_100 TYPE sy-ucomm.
+DATA: lv_okcode_100 TYPE sy-ucomm,
+*<---- 21/01/2024 - Estudos - Wesley Constantino - Início
+*------* VARIÁVEIS PARA O DOWLOAD:
+      gv_arqv     LIKE rlgrap-filename,
+      gv_filename TYPE string.
+*<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
 *&---------------------------------------------------------------------*
 *                       Declaração de Tipos                            *
 *&---------------------------------------------------------------------*
-TYPE-POOLS: slis.
+TYPE-POOLS: slis. "Preciso declarar essa estrutura para fucionar o ALV
+
 
 *&---------------------------------------------------------------------*
 *                        Estruturas do ALV                             *
@@ -81,6 +100,8 @@ PARAMETERS: p_nome TYPE ztbcliente-nome_do_cliente MODIF ID rb1, "OBLIGATORY,  "
             p_tel TYPE ztbcliente-telefone MODIF ID rb1.
 
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
+PARAMETERS: p_dwld LIKE rlgrap-filename MODIF ID dwd.
+
 "Tipos de carga do cadastro de cliente
 SELECTION-SCREEN BEGIN OF LINE.
 PARAMETERS: rb_unic RADIOBUTTON GROUP gr2 DEFAULT 'X' MODIF ID rb4.
@@ -529,6 +550,12 @@ FORM f_modifica_tela .
         screen-input     = 0.
         screen-active    = 0.
       ENDIF.
+
+     IF screen-group1 EQ 'DWD'.
+        screen-invisible = 1.
+        screen-input     = 0.
+        screen-active    = 0.
+      ENDIF.
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
     ENDIF.
 
@@ -557,8 +584,38 @@ FORM f_modifica_tela .
         screen-input     = 0.
         screen-active    = 0.
       ENDIF.
+
+      IF screen-group1 EQ 'DWD'.
+        screen-invisible = 1.
+        screen-input     = 0.
+        screen-active    = 0.
+      ENDIF.
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
     ENDIF.
+
+*<---- 21/01/2024 - Estudos - Wesley Constantino - Início
+*rb_massa
+*      IF rb_massa EQ 'X'.
+*
+*      IF screen-group1 EQ 'DWD'.
+*        screen-invisible = 0.
+*        screen-input     = 1.
+*        screen-active    = 1.
+*      ENDIF.
+*
+*      ENDIF.
+*
+**rb_unic
+*      IF rb_unic EQ 'X'.
+*
+*      IF screen-group1 EQ 'DWD'.
+*        screen-invisible = 1.
+*        screen-input     = 0.
+*        screen-active    = 0.
+*      ENDIF.
+*
+*      ENDIF.
+*<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
     MODIFY SCREEN. "Preciso dar um MODIFY SCREEN para que funcione.
   ENDLOOP.
