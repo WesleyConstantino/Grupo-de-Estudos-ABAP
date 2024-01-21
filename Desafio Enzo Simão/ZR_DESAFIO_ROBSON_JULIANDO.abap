@@ -594,7 +594,7 @@ FORM f_modifica_tela .
     ENDIF.
 
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
-*rb_massa
+**rb_massa
 *      IF rb_massa EQ 'X'.
 *
 *      IF screen-group1 EQ 'DWD'.
