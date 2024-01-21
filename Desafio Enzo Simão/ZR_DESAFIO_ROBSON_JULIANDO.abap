@@ -115,23 +115,39 @@ AT SELECTION-SCREEN OUTPUT.
 
 "Início da execusão
 START-OF-SELECTION.
-  IF rb_cli EQ 'X'.
+*<---- 21/01/2024 - Estudos - Wesley Constantino - Início
+*  IF rb_cli EQ 'X'.
+*
+*    IF p_nome IS NOT INITIAL AND p_rg IS NOT INITIAL AND p_cpf IS NOT INITIAL.
+*     PERFORM f_cadastra_cliente.
+*    ELSE.
+*     MESSAGE s208(00) WITH 'Preencha os dados obrigatórios!' DISPLAY LIKE 'E'.
+*    ENDIF.
+*
+*  ELSEIF rb_cven EQ 'X'.
+  IF rb_unic EQ 'X'.
 
     IF p_nome IS NOT INITIAL AND p_rg IS NOT INITIAL AND p_cpf IS NOT INITIAL.
      PERFORM f_cadastra_cliente.
     ELSE.
      MESSAGE s208(00) WITH 'Preencha os dados obrigatórios!' DISPLAY LIKE 'E'.
     ENDIF.
+  ENDIF.
 
-  ELSEIF rb_cven EQ 'X'.
+  IF rb_massa EQ 'X'.
+
+  ENDIF.
+*<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
     IF p_dat_vd IS NOT INITIAL AND p_rg2 IS NOT INITIAL AND p_cpf2 IS NOT INITIAL AND p_prod IS NOT INITIAL AND p_valor IS NOT INITIAL.
      PERFORM  f_cadastra_venda.
     ELSE.
      MESSAGE s208(00) WITH 'Preencha os dados obrigatórios!' DISPLAY LIKE 'E'.
     ENDIF.
-
-  ELSEIF rb_rven  EQ 'X'.
+*<---- 21/01/2024 - Estudos - Wesley Constantino - Início
+*  ELSEIF rb_rven  EQ 'X'.
+  IF rb_rven  EQ 'X'.
+*<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
     PERFORM f_relatorio_de_vendas.
   ENDIF.
 
