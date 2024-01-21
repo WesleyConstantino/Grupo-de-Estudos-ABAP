@@ -104,7 +104,7 @@ PARAMETERS: p_dwld LIKE rlgrap-filename MODIF ID dwd.
 
 "Tipos de carga do cadastro de cliente
 SELECTION-SCREEN BEGIN OF LINE.
-PARAMETERS: rb_unic RADIOBUTTON GROUP gr2 DEFAULT 'X' MODIF ID rb4.
+PARAMETERS: rb_unic RADIOBUTTON GROUP gr2 DEFAULT 'X' MODIF ID rb4 USER-COMMAND comando.
 SELECTION-SCREEN COMMENT 5(11) text-004 FOR FIELD rb_unic.
 
 PARAMETERS: rb_massa  RADIOBUTTON GROUP gr2 MODIF ID rb4.
@@ -595,26 +595,32 @@ FORM f_modifica_tela .
 
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
 **rb_massa
-*      IF rb_massa EQ 'X'.
-*
-*      IF screen-group1 EQ 'DWD'.
-*        screen-invisible = 0.
-*        screen-input     = 1.
-*        screen-active    = 1.
-*      ENDIF.
-*
-*      ENDIF.
-*
-**rb_unic
-*      IF rb_unic EQ 'X'.
-*
-*      IF screen-group1 EQ 'DWD'.
-*        screen-invisible = 1.
-*        screen-input     = 0.
-*        screen-active    = 0.
-*      ENDIF.
-*
-*      ENDIF.
+      IF rb_massa EQ 'X'.
+
+      IF screen-group1 EQ 'DWD'.
+        screen-invisible = 0.
+        screen-input     = 1.
+        screen-active    = 1.
+      ENDIF.
+
+     IF screen-group1 EQ 'RB1'.
+        screen-invisible = 1.
+        screen-input     = 0.
+        screen-active    = 0.
+      ENDIF.
+
+      ENDIF.
+
+*rb_unic
+      IF rb_unic EQ 'X'.
+
+      IF screen-group1 EQ 'DWD'.
+        screen-invisible = 1.
+        screen-input     = 0.
+        screen-active    = 0.
+      ENDIF.
+
+      ENDIF.
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
     MODIFY SCREEN. "Preciso dar um MODIFY SCREEN para que funcione.
