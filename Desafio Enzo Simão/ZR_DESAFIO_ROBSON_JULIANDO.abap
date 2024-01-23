@@ -28,10 +28,10 @@ TYPES:
        END OF ty_out,
 
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
-*------* ty_download
-      BEGIN OF ty_download,
+*------* ty_upload
+      BEGIN OF ty_upload,
          linha(2000) TYPE c,
-      END   OF ty_download.
+      END   OF ty_upload.
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
 *&---------------------------------------------------------------------*
@@ -41,7 +41,7 @@ DATA: it_out        TYPE TABLE OF ty_out,
       it_ztbcliente TYPE TABLE OF ztbcliente,
       it_ztbvenda   TYPE TABLE OF ztbvenda,
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
-      it_download   TYPE TABLE OF ty_download.
+      it_download   TYPE TABLE OF ty_upload.
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
 *&---------------------------------------------------------------------*
@@ -51,7 +51,7 @@ DATA: wa_ztbvenda   TYPE ztbvenda,
       wa_ztbcliente TYPE ztbcliente,
       wa_out        LIKE LINE OF it_out,
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
-      wa_download   TYPE ty_download.
+      wa_upload   TYPE ty_upload.
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
 *&---------------------------------------------------------------------*
@@ -59,9 +59,10 @@ DATA: wa_ztbvenda   TYPE ztbvenda,
 *&---------------------------------------------------------------------*
 DATA: lv_okcode_100 TYPE sy-ucomm,
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
-*------* VARIÁVEIS PARA O DOWLOAD:
-      gv_arqv     LIKE rlgrap-filename,
-      gv_filename TYPE string.
+*------* VARIÁVEIS PARA O UPLOAD:
+      it_files TYPE filetable,
+      wa_files TYPE file_table,
+      gv_rc    TYPE i.
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
 *&---------------------------------------------------------------------*
@@ -100,7 +101,7 @@ PARAMETERS: p_nome TYPE ztbcliente-nome_do_cliente MODIF ID rb1, "OBLIGATORY,  "
             p_tel TYPE ztbcliente-telefone MODIF ID rb1.
 
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
-PARAMETERS: p_dwld LIKE rlgrap-filename MODIF ID dwd.
+PARAMETERS: p_file(1024) TYPE c  MODIF ID upl. "OBLIGATORY. "Caminho do Arquivo para Upload
 
 "Tipos de carga do cadastro de cliente
 SELECTION-SCREEN BEGIN OF LINE.
@@ -154,9 +155,17 @@ START-OF-SELECTION.
      MESSAGE s208(00) WITH 'Preencha os dados obrigatórios!' DISPLAY LIKE 'E'.
     ENDIF.
   ENDIF.
+*<---- 23/01/2024 - Estudos - Wesley Constantino - Início
+*Evento caminho de upload
+  AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+*<---- 23/01/2024 - Estudos - Wesley Constantino - Fim
 
   IF rb_massa EQ 'X'.
-
+*<---- 23/01/2024 - Estudos - Wesley Constantino - Início
+   PERFORM: f_exibe_popup_caminho_upload,
+            f_gui_upload,
+            f_split_upload.
+*<---- 23/01/2024 - Estudos - Wesley Constantino - Fim
   ENDIF.
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
@@ -551,7 +560,7 @@ FORM f_modifica_tela .
         screen-active    = 0.
       ENDIF.
 
-     IF screen-group1 EQ 'DWD'.
+     IF screen-group1 EQ 'upl'.
         screen-invisible = 1.
         screen-input     = 0.
         screen-active    = 0.
@@ -585,7 +594,7 @@ FORM f_modifica_tela .
         screen-active    = 0.
       ENDIF.
 
-      IF screen-group1 EQ 'DWD'.
+      IF screen-group1 EQ 'upl'.
         screen-invisible = 1.
         screen-input     = 0.
         screen-active    = 0.
@@ -597,7 +606,7 @@ FORM f_modifica_tela .
 **rb_massa
       IF rb_massa EQ 'X'.
 
-      IF screen-group1 EQ 'DWD'.
+      IF screen-group1 EQ 'upl'.
         screen-invisible = 0.
         screen-input     = 1.
         screen-active    = 1.
@@ -614,7 +623,7 @@ FORM f_modifica_tela .
 *rb_unic
       IF rb_unic EQ 'X'.
 
-      IF screen-group1 EQ 'DWD'.
+      IF screen-group1 EQ 'upl'.
         screen-invisible = 1.
         screen-input     = 0.
         screen-active    = 0.
@@ -648,3 +657,45 @@ MODULE status_0100 OUTPUT.
   SET PF-STATUS 'STATUS100'. "Botões da tela 100
   SET TITLEBAR 'TITULE100'.  "Código do título da Tela 100
 ENDMODULE.
+
+*<---- 23/01/2024 - Estudos - Wesley Constantino - Início
+*&---------------------------------------------------------------------*
+*& Form f_exibe_popup_caminho_upload
+*&---------------------------------------------------------------------*
+FORM f_exibe_popup_caminho_upload .
+
+  CALL METHOD cl_gui_frontend_services=>file_open_dialog
+    CHANGING
+      file_table              = it_files
+      rc                      = gv_rc
+    EXCEPTIONS
+      file_open_dialog_failed = 1
+      cntl_error              = 2
+      error_no_gui            = 3
+      not_supported_by_gui    = 4
+      OTHERS                  = 5.
+
+  IF sy-subrc NE 0.
+    MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+    WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+  ELSE.
+    READ TABLE it_files INTO wa_files INDEX 1.
+    p_file = wa_files-filename.
+  ENDIF.
+
+ENDFORM.
+
+*&---------------------------------------------------------------------*
+*& Form f_gui_upload
+*&---------------------------------------------------------------------*
+FORM f_gui_upload .
+
+ENDFORM.
+
+*&---------------------------------------------------------------------*
+*& Form f_split_upload
+*&---------------------------------------------------------------------*
+FORM f_split_upload .
+
+ENDFORM.
+*<---- 23/01/2024 - Estudos - Wesley Constantino - Fim
