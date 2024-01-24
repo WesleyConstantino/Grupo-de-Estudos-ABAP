@@ -39,6 +39,7 @@ TYPES:
 *&---------------------------------------------------------------------*
 DATA: it_out        TYPE TABLE OF ty_out,
       it_ztbcliente TYPE TABLE OF ztbcliente,
+      it_log_cli TYPE TABLE OF ztbcliente,
       it_ztbvenda   TYPE TABLE OF ztbvenda,
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
       it_arquivo   TYPE TABLE OF ty_arquivo.
@@ -751,11 +752,39 @@ FORM f_split_upload .
                                    wa_ztbcliente-telefone.
 
       APPEND wa_ztbcliente TO it_ztbcliente.
+      IF sy-subrc EQ 0.
+        PERFORM f_cad_cliente_massa.
+      ENDIF.
     ENDIF. "rb_cli
+
+    IF rb_cven EQ 'X'.
+      "Codar o split do cadastro de venda aqui
+    ENDIF. "rb_cven
 
       CLEAR  wa_out.
     ENDLOOP.
   ENDIF.
+
+ENDFORM.
+
+*&---------------------------------------------------------------------*
+*& Form f_cad_cliente_massa
+*&---------------------------------------------------------------------*
+FORM f_cad_cliente_massa .
+
+"Verifica se existem clientes iguais na tabela transparente e no arquivo do upload
+ SELECT *
+   FROM ztbcliente
+   INTO TABLE @it_log_cli
+   FOR ALL ENTRIES IN @it_ztbcliente
+   WHERE rg  EQ @it_ztbcliente-rg AND
+         cpf EQ @it_ztbcliente-cpf.
+
+   IF it_log_cli IS INITIAL.
+
+   ELSE.
+
+   ENDIF.
 
 ENDFORM.
 *<---- 23/01/2024 - Estudos - Wesley Constantino - Fim
