@@ -28,10 +28,10 @@ TYPES:
        END OF ty_out,
 
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
-*------* ty_upload
-      BEGIN OF ty_upload,
+*------* ty_arquivo
+      BEGIN OF ty_arquivo,
          linha(2000) TYPE c,
-      END   OF ty_upload.
+      END   OF ty_arquivo.
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
 *&---------------------------------------------------------------------*
@@ -41,7 +41,7 @@ DATA: it_out        TYPE TABLE OF ty_out,
       it_ztbcliente TYPE TABLE OF ztbcliente,
       it_ztbvenda   TYPE TABLE OF ztbvenda,
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
-      it_download   TYPE TABLE OF ty_upload.
+      it_arquivo   TYPE TABLE OF ty_arquivo.
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
 *&---------------------------------------------------------------------*
@@ -51,7 +51,7 @@ DATA: wa_ztbvenda   TYPE ztbvenda,
       wa_ztbcliente TYPE ztbcliente,
       wa_out        LIKE LINE OF it_out,
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
-      wa_upload   TYPE ty_upload.
+      wa_arquivo   TYPE ty_arquivo.
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
 *&---------------------------------------------------------------------*
@@ -690,12 +690,72 @@ ENDFORM.
 *&---------------------------------------------------------------------*
 FORM f_gui_upload .
 
+  DATA ls_file  TYPE string.
+
+  ls_file = p_file.
+
+  CALL FUNCTION 'GUI_UPLOAD'
+    EXPORTING
+      filename                = ls_file
+      filetype                = 'ASC'
+    TABLES
+      data_tab                = it_arquivo
+    EXCEPTIONS
+      file_open_error         = 1
+      file_read_error         = 2
+      no_batch                = 3
+      gui_refuse_filetransfer = 4
+      invalid_type            = 5
+      no_authority            = 6
+      unknown_error           = 7
+      bad_data_format         = 8
+      header_not_allowed      = 9
+      separator_not_allowed   = 10
+      header_too_long         = 11
+      unknown_dp_error        = 12
+      access_denied           = 13
+      dp_out_of_memory        = 14
+      disk_full               = 15
+      dp_timeout              = 16
+      OTHERS                  = 17.
+
+  IF sy-subrc <> 0.
+    MESSAGE 'Erro no upload!' TYPE 'S' DISPLAY LIKE 'E'.
+  ENDIF.
+
 ENDFORM.
 
 *&---------------------------------------------------------------------*
 *& Form f_split_upload
 *&---------------------------------------------------------------------*
 FORM f_split_upload .
+
+  DATA: ls_cod_da_venda TYPE c,
+        ls_valor_da_venda TYPE c.
+
+  IF it_arquivo[] IS NOT INITIAL.
+
+    LOOP AT it_arquivo INTO wa_arquivo.
+*--* Início *--* Ignora a primeira linha do arquivo CSV do upload.
+      IF sy-tabix EQ '1'.
+        CONTINUE.
+      ENDIF.
+*--* Fim *--*
+     IF rb_cli EQ 'X'.
+      SPLIT wa_arquivo-linha AT ';' INTO
+                                   wa_ztbcliente-nome_do_cliente
+                                   wa_ztbcliente-rg
+                                   wa_ztbcliente-cpf
+                                   wa_ztbcliente-endereco
+                                   wa_ztbcliente-email
+                                   wa_ztbcliente-telefone.
+
+      APPEND wa_ztbcliente TO it_ztbcliente.
+    ENDIF. "rb_cli
+
+      CLEAR  wa_out.
+    ENDLOOP.
+  ENDIF.
 
 ENDFORM.
 *<---- 23/01/2024 - Estudos - Wesley Constantino - Fim
