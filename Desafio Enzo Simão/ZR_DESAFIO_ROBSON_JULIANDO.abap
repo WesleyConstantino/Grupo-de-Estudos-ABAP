@@ -170,10 +170,16 @@ START-OF-SELECTION.
   ENDIF.
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
-    IF p_dat_vd IS NOT INITIAL AND p_rg2 IS NOT INITIAL AND p_cpf2 IS NOT INITIAL AND p_prod IS NOT INITIAL AND p_valor IS NOT INITIAL.
+    IF rb_cven EQ 'X' AND p_dat_vd IS NOT INITIAL AND p_rg2 IS NOT INITIAL AND p_cpf2 IS NOT INITIAL AND p_prod IS NOT INITIAL AND p_valor IS NOT INITIAL.
      PERFORM  f_cadastra_venda.
     ELSE.
+*<---- 23/01/2024 - Estudos - Wesley Constantino - Início
+     IF rb_cven EQ 'X'.
+*<---- 23/01/2024 - Estudos - Wesley Constantino - Fim
      MESSAGE s208(00) WITH 'Preencha os dados obrigatórios!' DISPLAY LIKE 'E'.
+*<---- 23/01/2024 - Estudos - Wesley Constantino - Início
+     ENDIF.
+*<---- 23/01/2024 - Estudos - Wesley Constantino - Fim
     ENDIF.
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
 *  ELSEIF rb_rven  EQ 'X'.
@@ -212,6 +218,10 @@ START-OF-SELECTION.
  FORM f_update_cliente.
  DATA: wa_ztbcliente TYPE ztbcliente.
 
+*<---- 23/01/2024 - Estudos - Wesley Constantino - Início
+"Para cadastro único de cliente
+     IF rb_unic EQ 'X'.
+*<---- 23/01/2024 - Estudos - Wesley Constantino - Fim
       wa_ztbcliente-cpf = p_cpf.
       wa_ztbcliente-email = p_email.
       wa_ztbcliente-endereco = p_end.
@@ -220,11 +230,18 @@ START-OF-SELECTION.
       wa_ztbcliente-telefone = p_tel.
 
       INSERT ztbcliente FROM wa_ztbcliente.
+*<---- 23/01/2024 - Estudos - Wesley Constantino - Início
+     ENDIF.
+"Para cadastro de cliente em massa
+     IF rb_massa EQ 'X'.
+      INSERT ztbcliente FROM TABLE it_ztbcliente.
+     ENDIF.
+*<---- 23/01/2024 - Estudos - Wesley Constantino - Fim
 
       IF sy-subrc IS INITIAL.
         COMMIT WORK AND WAIT. "COMMIT WORK AND WAIT dá commit no banco de dados
 
-        MESSAGE s208(00) WITH 'CLIENTE CADASTRADO COM SUCESSO!'.
+        MESSAGE s208(00) WITH 'CLIENTE(S) CADASTRADO(S) COM SUCESSO!'.
       ELSE.
         ROLLBACK WORK. "ROLLBACK WORK desfaz tudo o que aconteceu na operação
         MESSAGE s208(00) WITH 'ERRO AO GRAVAR!'DISPLAY LIKE 'E'.
@@ -752,9 +769,7 @@ FORM f_split_upload .
                                    wa_ztbcliente-telefone.
 
       APPEND wa_ztbcliente TO it_ztbcliente.
-      IF sy-subrc EQ 0.
-        PERFORM f_cad_cliente_massa.
-      ENDIF.
+
     ENDIF. "rb_cli
 
     IF rb_cven EQ 'X'.
@@ -763,6 +778,11 @@ FORM f_split_upload .
 
       CLEAR  wa_out.
     ENDLOOP.
+
+      IF it_ztbcliente IS NOT INITIAL AND rb_cli EQ 'X'.
+        PERFORM f_cad_cliente_massa.
+      ENDIF.
+
   ENDIF.
 
 ENDFORM.
@@ -781,8 +801,10 @@ FORM f_cad_cliente_massa .
          cpf EQ @it_ztbcliente-cpf.
 
    IF it_log_cli IS INITIAL.
-
+    "Se não teverem clientes do arquivo de upload já cadastrados na tabela transparente.
+    PERFORM f_update_cliente.
    ELSE.
+    "Se teverem clientes do arquivo de upload já cadastrados na tabela transparente.
 
    ENDIF.
 
