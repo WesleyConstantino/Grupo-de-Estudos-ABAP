@@ -43,7 +43,8 @@ TYPES:
          endereco          TYPE ztbcliente-endereco,
          email             TYPE ztbcliente-email,
          telefone          TYPE ztbcliente-telefone,
-         mensagem TYPE c LENGTH 100,
+         mensagem          TYPE c LENGTH 100,
+         color             TYPE char4,
        END OF ty_log_cli_out.
 *<---- 30/01/2024 - Estudos - Wesley Constantino - Fim
 
@@ -863,7 +864,8 @@ FORM f_popula_it_log_cli_out .
     wa_log_cli_out-endereco        = ls_log_cli-endereco       .
     wa_log_cli_out-email           = ls_log_cli-email          .
     wa_log_cli_out-telefone        = ls_log_cli-telefone       .
-    wa_log_cli_out-mensagem                = 'Cliente já cadastrado anteriormente!'.
+    wa_log_cli_out-mensagem        = 'Cliente já cadastrado anteriormente!'.
+    wa_log_cli_out-color           = 'C300'. "Código da cor amarela
 
     APPEND wa_log_cli_out TO it_log_cli_out.
     CLEAR:  wa_log_cli_out,
@@ -879,6 +881,7 @@ CLEAR wa_ztbcliente.
     wa_log_cli_out-email           = wa_ztbcliente-email          .
     wa_log_cli_out-telefone        = wa_ztbcliente-telefone       .
     wa_log_cli_out-mensagem        = 'Cliente cadastrado com sucesso!'.
+    wa_log_cli_out-color           = 'C500'. "Código da cor verde
 
   APPEND wa_log_cli_out TO it_log_cli_out.
   CLEAR:  wa_log_cli_out,
@@ -922,6 +925,7 @@ MODULE m_show_grid_101 OUTPUT.
   ls_layout-cwidth_opt = 'X'. "Ajustar largura das colunas (Layout otimizado).
   ls_layout-zebra      = 'X'. "Layout em Zebra.
   ls_variant-report    = sy-repid. "Variante (Não usá-la quando o tipo foi pop-up).
+  ls_layout-info_fname = 'COLOR'. "Cor das linhas
 
   PERFORM f_build_fieldcat USING:
           'NOME_DO_CLIENTE'  'NOME_DO_CLIENTE'  'ZTBCLIENTE'    'Nome do cliente'   CHANGING lt_fieldcat[],
