@@ -11,6 +11,11 @@ REPORT zr_desafio_robson_juliando.
 TABLES: ztbvenda.
 
 *&---------------------------------------------------------------------*
+*                             Includes                                 *
+*&---------------------------------------------------------------------*
+INCLUDE <icon>. "Include da tabela de ícones
+
+*&---------------------------------------------------------------------*
 *                                 TYPES                                *
 *&---------------------------------------------------------------------*
 TYPES:
@@ -45,6 +50,7 @@ TYPES:
          telefone          TYPE ztbcliente-telefone,
          mensagem          TYPE c LENGTH 100,
          color             TYPE char4,
+         id                TYPE icon-id,
        END OF ty_log_cli_out.
 *<---- 30/01/2024 - Estudos - Wesley Constantino - Fim
 
@@ -483,15 +489,15 @@ MODULE m_show_grid_100 OUTPUT.
   ls_variant-report    = sy-repid. "Variante (Não usá-la quando o tipo foi pop-up).
 
   PERFORM f_build_fieldcat USING:
-          'COD_DA_VENDA'     'COD_DA_VENDA'     'ZTBVENDA'   'Código da venda'   CHANGING lt_fieldcat[],
-          'PRODUTO'          'PRODUTO'          'ZTBVENDA'   'Produto'           CHANGING lt_fieldcat[],
-          'NOME_DO_CLIENTE'  'NOME_DO_CLIENTE'  'ZTBCLIENTE' 'Nome do cliente'   CHANGING lt_fieldcat[],
-          'RG'               'RG'               'ZTBVENDA'   'RG'                CHANGING lt_fieldcat[],
-          'CPF'              'CPF'              'ZTBVENDA'   'CPF'               CHANGING lt_fieldcat[],
-          'ENDERECO'         'ENDERECO'         'ZTBCLIENTE' 'Endereço'          CHANGING lt_fieldcat[],
-          'EMAIL'            'EMAIL'            'ZTBCLIENTE' 'Email'             CHANGING lt_fieldcat[],
-          'TELEFONE'         'TELEFONE'         'ZTBCLIENTE' 'Telefone'          CHANGING lt_fieldcat[],
-          'VALOR_DA_VENDA'   'VALOR_DA_VENDA'   'ZTBVENDA'   'Valor da venda'    CHANGING lt_fieldcat[].
+          'COD_DA_VENDA'     'COD_DA_VENDA'     'ZTBVENDA'   'Código da venda'  ' '   CHANGING lt_fieldcat[],
+          'PRODUTO'          'PRODUTO'          'ZTBVENDA'   'Produto'          ' '   CHANGING lt_fieldcat[],
+          'NOME_DO_CLIENTE'  'NOME_DO_CLIENTE'  'ZTBCLIENTE' 'Nome do cliente'  ' '   CHANGING lt_fieldcat[],
+          'RG'               'RG'               'ZTBVENDA'   'RG'               ' '   CHANGING lt_fieldcat[],
+          'CPF'              'CPF'              'ZTBVENDA'   'CPF'              ' '   CHANGING lt_fieldcat[],
+          'ENDERECO'         'ENDERECO'         'ZTBCLIENTE' 'Endereço'         ' '   CHANGING lt_fieldcat[],
+          'EMAIL'            'EMAIL'            'ZTBCLIENTE' 'Email'            ' '   CHANGING lt_fieldcat[],
+          'TELEFONE'         'TELEFONE'         'ZTBCLIENTE' 'Telefone'         ' '   CHANGING lt_fieldcat[],
+          'VALOR_DA_VENDA'   'VALOR_DA_VENDA'   'ZTBVENDA'   'Valor da venda'   ' '   CHANGING lt_fieldcat[].
 
   IF lo_grid_100 IS INITIAL.
     "Instância o objeto do ALV
@@ -523,6 +529,7 @@ FORM f_build_fieldcat USING VALUE(p_fieldname) TYPE c
                              VALUE(p_field)     TYPE c
                              VALUE(p_table)     TYPE c
                              VALUE(p_coltext)   TYPE c
+                             VALUE(p_icon)      TYPE c
                           CHANGING t_fieldcat   TYPE lvc_t_fcat.
 
   DATA: ls_fieldcat LIKE LINE OF t_fieldcat[].
@@ -538,6 +545,9 @@ FORM f_build_fieldcat USING VALUE(p_fieldname) TYPE c
 
   "Descrição que daremos para o campo no ALV.
   ls_fieldcat-coltext   = p_coltext.
+
+  "Ìcones
+  ls_fieldcat-icon = p_icon.
 
   APPEND ls_fieldcat TO t_fieldcat[].
 
@@ -866,6 +876,7 @@ FORM f_popula_it_log_cli_out .
     wa_log_cli_out-telefone        = ls_log_cli-telefone       .
     wa_log_cli_out-mensagem        = 'Cliente já cadastrado anteriormente!'.
     wa_log_cli_out-color           = 'C300'. "Código da cor amarela
+    wa_log_cli_out-id              = icon_yellow_light. "Ícone amarelo
 
     APPEND wa_log_cli_out TO it_log_cli_out.
     CLEAR:  wa_log_cli_out,
@@ -882,6 +893,7 @@ CLEAR wa_ztbcliente.
     wa_log_cli_out-telefone        = wa_ztbcliente-telefone       .
     wa_log_cli_out-mensagem        = 'Cliente cadastrado com sucesso!'.
     wa_log_cli_out-color           = 'C500'. "Código da cor verde
+    wa_log_cli_out-id              = icon_green_light. "Ícone verde
 
   APPEND wa_log_cli_out TO it_log_cli_out.
   CLEAR:  wa_log_cli_out,
@@ -928,13 +940,14 @@ MODULE m_show_grid_101 OUTPUT.
   ls_layout-info_fname = 'COLOR'. "Cor das linhas
 
   PERFORM f_build_fieldcat USING:
-          'NOME_DO_CLIENTE'  'NOME_DO_CLIENTE'  'ZTBCLIENTE'    'Nome do cliente'   CHANGING lt_fieldcat[],
-          'RG'               'RG'               'ZTBCLIENTE'    'RG'                CHANGING lt_fieldcat[],
-          'CPF'              'CPF'              'ZTBCLIENTE'    'CPF'               CHANGING lt_fieldcat[],
-          'ENDERECO'         'ENDERECO'         'ZTBCLIENTE'    'Endereço'          CHANGING lt_fieldcat[],
-          'EMAIL'            'EMAIL'            'ZTBCLIENTE'    'Email'             CHANGING lt_fieldcat[],
-          'TELEFONE'         'TELEFONE'         'ZTBCLIENTE'    'Telefone'          CHANGING lt_fieldcat[],
-          'MENSAGEM'         'MENSAGEM'         'IT_ZTBCLIENTE' 'Mensagem'          CHANGING lt_fieldcat[].
+          'ID'               'ID'               'ICON'          'Status'           'X'  CHANGING lt_fieldcat[],
+          'NOME_DO_CLIENTE'  'NOME_DO_CLIENTE'  'ZTBCLIENTE'    'Nome do cliente'  ' '  CHANGING lt_fieldcat[],
+          'RG'               'RG'               'ZTBCLIENTE'    'RG'               ' '  CHANGING lt_fieldcat[],
+          'CPF'              'CPF'              'ZTBCLIENTE'    'CPF'              ' '  CHANGING lt_fieldcat[],
+          'ENDERECO'         'ENDERECO'         'ZTBCLIENTE'    'Endereço'         ' '  CHANGING lt_fieldcat[],
+          'EMAIL'            'EMAIL'            'ZTBCLIENTE'    'Email'            ' '  CHANGING lt_fieldcat[],
+          'TELEFONE'         'TELEFONE'         'ZTBCLIENTE'    'Telefone'         ' '  CHANGING lt_fieldcat[],
+          'MENSAGEM'         'MENSAGEM'         'IT_ZTBCLIENTE' 'Mensagem'         ' '  CHANGING lt_fieldcat[].
 
   IF lo_grid_101 IS INITIAL.
     "Instância o objeto do ALV
