@@ -37,7 +37,12 @@ TYPES:
 *<---- 30/01/2024 - Estudos - Wesley Constantino - Início
 *------* ty_log_cli
        BEGIN OF ty_log_cli_out,
-         INCLUDE TYPE ztbcliente,
+         nome_do_cliente   TYPE ztbcliente-nome_do_cliente,
+         rg                TYPE ztbcliente-rg,
+         cpf               TYPE ztbcliente-cpf,
+         endereco          TYPE ztbcliente-endereco,
+         email             TYPE ztbcliente-email,
+         telefone          TYPE ztbcliente-telefone,
          mensagem TYPE c LENGTH 100,
        END OF ty_log_cli_out.
 *<---- 30/01/2024 - Estudos - Wesley Constantino - Fim
@@ -91,6 +96,10 @@ TYPE-POOLS: slis. "Preciso declarar essa estrutura para fucionar o ALV
 *&---------------------------------------------------------------------*
 DATA: lo_container_100 TYPE REF TO cl_gui_custom_container,
       lo_grid_100      TYPE REF TO cl_gui_alv_grid,
+*<---- 30/01/2024 - Estudos - Wesley Constantino - Início
+      lo_container_101 TYPE REF TO cl_gui_custom_container,
+      lo_grid_101      TYPE REF TO cl_gui_alv_grid,
+*<---- 30/01/2024 - Estudos - Wesley Constantino - Fim
       lt_fieldcat      TYPE lvc_t_fcat,
       ls_layout        TYPE lvc_s_layo,
       ls_variant       TYPE disvariant.
@@ -848,12 +857,12 @@ ENDFORM.
 FORM f_popula_it_log_cli_out .
 
   LOOP AT it_log_cli INTO DATA(ls_log_cli).
-    wa_log_cli_out-include-nome_do_cliente = ls_log_cli-nome_do_cliente.
-    wa_log_cli_out-include-rg              = ls_log_cli-rg             .
-    wa_log_cli_out-include-cpf             = ls_log_cli-cpf            .
-    wa_log_cli_out-include-endereco        = ls_log_cli-endereco       .
-    wa_log_cli_out-include-email           = ls_log_cli-email          .
-    wa_log_cli_out-include-telefone        = ls_log_cli-telefone       .
+    wa_log_cli_out-nome_do_cliente = ls_log_cli-nome_do_cliente.
+    wa_log_cli_out-rg              = ls_log_cli-rg             .
+    wa_log_cli_out-cpf             = ls_log_cli-cpf            .
+    wa_log_cli_out-endereco        = ls_log_cli-endereco       .
+    wa_log_cli_out-email           = ls_log_cli-email          .
+    wa_log_cli_out-telefone        = ls_log_cli-telefone       .
     wa_log_cli_out-mensagem                = 'Cliente já cadastrado anteriormente!'.
 
     APPEND wa_log_cli_out TO it_log_cli_out.
@@ -863,20 +872,20 @@ FORM f_popula_it_log_cli_out .
 
 CLEAR wa_ztbcliente.
   LOOP AT it_ztbcliente INTO wa_ztbcliente.
-    wa_log_cli_out-include-nome_do_cliente = wa_ztbcliente-nome_do_cliente.
-    wa_log_cli_out-include-rg              = wa_ztbcliente-rg             .
-    wa_log_cli_out-include-cpf             = wa_ztbcliente-cpf            .
-    wa_log_cli_out-include-endereco        = wa_ztbcliente-endereco       .
-    wa_log_cli_out-include-email           = wa_ztbcliente-email          .
-    wa_log_cli_out-include-telefone        = wa_ztbcliente-telefone       .
-    wa_log_cli_out-mensagem                = 'Cliente cadastrado com sucesso!'.
+    wa_log_cli_out-nome_do_cliente = wa_ztbcliente-nome_do_cliente.
+    wa_log_cli_out-rg              = wa_ztbcliente-rg             .
+    wa_log_cli_out-cpf             = wa_ztbcliente-cpf            .
+    wa_log_cli_out-endereco        = wa_ztbcliente-endereco       .
+    wa_log_cli_out-email           = wa_ztbcliente-email          .
+    wa_log_cli_out-telefone        = wa_ztbcliente-telefone       .
+    wa_log_cli_out-mensagem        = 'Cliente cadastrado com sucesso!'.
 
   APPEND wa_log_cli_out TO it_log_cli_out.
   CLEAR:  wa_log_cli_out,
           wa_ztbcliente.
   ENDLOOP.
 
-  IF lines( it_out ) > 0.
+  IF lines( it_log_cli_out ) > 0.
     CALL SCREEN 101.
   ENDIF.
 
@@ -901,6 +910,48 @@ MODULE user_command_0101 INPUT.
     WHEN 'EXIT'.
       LEAVE PROGRAM. "Sai do programa
   ENDCASE.
+
+ENDMODULE.
+
+*&---------------------------------------------------------------------*
+*&      Module  M_SHOW_GRID_100  OUTPUT
+*&---------------------------------------------------------------------*
+MODULE m_show_grid_101 OUTPUT.
+  FREE: lt_fieldcat[].
+
+  ls_layout-cwidth_opt = 'X'. "Ajustar largura das colunas (Layout otimizado).
+  ls_layout-zebra      = 'X'. "Layout em Zebra.
+  ls_variant-report    = sy-repid. "Variante (Não usá-la quando o tipo foi pop-up).
+
+  PERFORM f_build_fieldcat USING:
+          'NOME_DO_CLIENTE'  'NOME_DO_CLIENTE'  'ZTBCLIENTE'    'Nome do cliente'   CHANGING lt_fieldcat[],
+          'RG'               'RG'               'ZTBCLIENTE'    'RG'                CHANGING lt_fieldcat[],
+          'CPF'              'CPF'              'ZTBCLIENTE'    'CPF'               CHANGING lt_fieldcat[],
+          'ENDERECO'         'ENDERECO'         'ZTBCLIENTE'    'Endereço'          CHANGING lt_fieldcat[],
+          'EMAIL'            'EMAIL'            'ZTBCLIENTE'    'Email'             CHANGING lt_fieldcat[],
+          'TELEFONE'         'TELEFONE'         'ZTBCLIENTE'    'Telefone'          CHANGING lt_fieldcat[],
+          'MENSAGEM'         'MENSAGEM'         'IT_ZTBCLIENTE' 'Mensagem'          CHANGING lt_fieldcat[].
+
+  IF lo_grid_101 IS INITIAL.
+    "Instância o objeto do ALV
+    lo_grid_101 = NEW cl_gui_alv_grid( i_parent = cl_gui_custom_container=>default_screen ).
+
+    "Chama o ALV pela primeira vez
+    lo_grid_101->set_table_for_first_display(
+    EXPORTING
+      is_variant  = ls_variant
+      is_layout   = ls_layout
+      i_save      = 'A'
+    CHANGING
+      it_fieldcatalog = lt_fieldcat[]
+      it_outtab       = it_log_cli_out[]
+    ).
+
+    "Define título do ALV
+    lo_grid_101->set_gridtitle( 'Log de mensagem dos registros de clientes' ).
+  ELSE.
+    lo_grid_101->refresh_table_display( ).
+  ENDIF.
 
 ENDMODULE.
 *<---- 30/01/2024 - Estudos - Wesley Constantino - Fim
