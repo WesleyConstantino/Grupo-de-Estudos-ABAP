@@ -31,29 +31,43 @@ TYPES:
 *------* ty_arquivo
       BEGIN OF ty_arquivo,
          linha(2000) TYPE c,
-      END   OF ty_arquivo.
+      END   OF ty_arquivo,
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
+
+*<---- 30/01/2024 - Estudos - Wesley Constantino - Início
+*------* ty_log_cli
+       BEGIN OF ty_log_cli_out,
+         INCLUDE TYPE ztbcliente,
+         mensagem TYPE c LENGTH 100,
+       END OF ty_log_cli_out.
+*<---- 30/01/2024 - Estudos - Wesley Constantino - Fim
 
 *&---------------------------------------------------------------------*
 *                        Tabelas Internas                              *
 *&---------------------------------------------------------------------*
-DATA: it_out        TYPE TABLE OF ty_out,
-      it_ztbcliente TYPE TABLE OF ztbcliente,
-      it_log_cli TYPE TABLE OF ztbcliente,
-      it_ztbvenda   TYPE TABLE OF ztbvenda,
+DATA: it_out          TYPE TABLE OF ty_out,
+      it_ztbcliente   TYPE TABLE OF ztbcliente,
+      it_log_cli      TYPE TABLE OF ztbcliente,
+      it_ztbvenda     TYPE TABLE OF ztbvenda,
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
-      it_arquivo   TYPE TABLE OF ty_arquivo.
+      it_arquivo      TYPE TABLE OF ty_arquivo,
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
+*<---- 30/01/2024 - Estudos - Wesley Constantino - Início
+       it_log_cli_out TYPE TABLE OF ty_log_cli_out.
+*<---- 30/01/2024 - Estudos - Wesley Constantino - Fim
 
 *&---------------------------------------------------------------------*
 *                           Workareas                                  *
 *&---------------------------------------------------------------------*
-DATA: wa_ztbvenda   TYPE ztbvenda,
-      wa_ztbcliente TYPE ztbcliente,
-      wa_out        LIKE LINE OF it_out,
+DATA: wa_ztbvenda    TYPE ztbvenda,
+      wa_ztbcliente  TYPE ztbcliente,
+      wa_out         LIKE LINE OF it_out,
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Início
-      wa_arquivo   TYPE ty_arquivo.
+      wa_arquivo     TYPE ty_arquivo,
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
+*<---- 30/01/2024 - Estudos - Wesley Constantino - Início
+      wa_log_cli_out TYPE ty_log_cli_out.
+*<---- 30/01/2024 - Estudos - Wesley Constantino - Fim
 
 *&---------------------------------------------------------------------*
 *                            Variáveis                                 *
@@ -815,8 +829,78 @@ FORM f_cad_cliente_massa .
    ELSE.
     MESSAGE 'Todos os clientes já estão cadastrados!' TYPE 'S' DISPLAY LIKE 'W'.
    ENDIF.
-
    ENDIF.
+
+*<---- 30/01/2024 - Estudos - Wesley Constantino - Início
+   "Log do status de todos os status dos clientes cadastrados e não cadastrados
+   IF sy-subrc EQ 0.
+    PERFORM f_popula_it_log_cli_out.
+   ENDIF.
+*<---- 30/01/2024 - Estudos - Wesley Constantino - Fim
 
 ENDFORM.
 *<---- 23/01/2024 - Estudos - Wesley Constantino - Fim
+
+*<---- 30/01/2024 - Estudos - Wesley Constantino - Início
+*&---------------------------------------------------------------------*
+*& Form f_popula_it_log_cli_out
+*&---------------------------------------------------------------------*
+FORM f_popula_it_log_cli_out .
+
+  LOOP AT it_log_cli INTO DATA(ls_log_cli).
+    wa_log_cli_out-include-nome_do_cliente = ls_log_cli-nome_do_cliente.
+    wa_log_cli_out-include-rg              = ls_log_cli-rg             .
+    wa_log_cli_out-include-cpf             = ls_log_cli-cpf            .
+    wa_log_cli_out-include-endereco        = ls_log_cli-endereco       .
+    wa_log_cli_out-include-email           = ls_log_cli-email          .
+    wa_log_cli_out-include-telefone        = ls_log_cli-telefone       .
+    wa_log_cli_out-mensagem                = 'Cliente já cadastrado anteriormente!'.
+
+    APPEND wa_log_cli_out TO it_log_cli_out.
+    CLEAR:  wa_log_cli_out,
+            ls_log_cli.
+  ENDLOOP.
+
+CLEAR wa_ztbcliente.
+  LOOP AT it_ztbcliente INTO wa_ztbcliente.
+    wa_log_cli_out-include-nome_do_cliente = wa_ztbcliente-nome_do_cliente.
+    wa_log_cli_out-include-rg              = wa_ztbcliente-rg             .
+    wa_log_cli_out-include-cpf             = wa_ztbcliente-cpf            .
+    wa_log_cli_out-include-endereco        = wa_ztbcliente-endereco       .
+    wa_log_cli_out-include-email           = wa_ztbcliente-email          .
+    wa_log_cli_out-include-telefone        = wa_ztbcliente-telefone       .
+    wa_log_cli_out-mensagem                = 'Cliente cadastrado com sucesso!'.
+
+  APPEND wa_log_cli_out TO it_log_cli_out.
+  CLEAR:  wa_log_cli_out,
+          wa_ztbcliente.
+  ENDLOOP.
+
+  IF lines( it_out ) > 0.
+    CALL SCREEN 101.
+  ENDIF.
+
+ENDFORM.
+
+*&---------------------------------------------------------------------*
+*& Module STATUS_0101 OUTPUT
+*&---------------------------------------------------------------------*
+MODULE status_0101 OUTPUT.
+  SET PF-STATUS 'STATUS101'. "Botões da tela 101
+  SET TITLEBAR 'TITULE101'.  "Código do título da Tela 101
+ENDMODULE.
+
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0101  INPUT
+*&---------------------------------------------------------------------*
+MODULE user_command_0101 INPUT.
+
+  CASE lv_okcode_100.
+    WHEN 'BACK'.
+      LEAVE TO SCREEN 0. "Volta para a tela chamadora
+    WHEN 'EXIT'.
+      LEAVE PROGRAM. "Sai do programa
+  ENDCASE.
+
+ENDMODULE.
+*<---- 30/01/2024 - Estudos - Wesley Constantino - Fim
