@@ -580,6 +580,10 @@ FORM f_modifica_tela .
 
 *rb_cven
     IF rb_cven EQ 'X'.
+*<---- 04/02/2024 - Estudos - Wesley Constantino - Início
+    CLEAR rb_massa.
+*<---- 04/02/2024 - Estudos - Wesley Constantino - Fim
+
       IF screen-group1 EQ 'RB2'.
         screen-invisible = 0.
         screen-input     = 1.
@@ -614,6 +618,10 @@ FORM f_modifica_tela .
 
 *rb_rven
     IF rb_rven EQ 'X'.
+*<---- 04/02/2024 - Estudos - Wesley Constantino - Início
+    CLEAR rb_massa.
+*<---- 04/02/2024 - Estudos - Wesley Constantino - Fim
+
       IF screen-group1 EQ 'RB3'.
         screen-invisible = 0.
         screen-input     = 1.
