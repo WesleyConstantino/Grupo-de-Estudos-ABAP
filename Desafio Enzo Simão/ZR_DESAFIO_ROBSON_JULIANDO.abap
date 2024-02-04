@@ -770,8 +770,9 @@ FORM f_gui_upload .
       disk_full               = 15
       dp_timeout              = 16
       OTHERS                  = 17.
-
-  IF sy-subrc <> 0.
+*<---- 04/02/2024 - Estudos - Wesley Constantino - Início
+  IF sy-subrc <> 0 AND sy-subrc <> 1.
+*<---- 04/02/2024 - Estudos - Wesley Constantino - Fim
     MESSAGE 'Erro no upload!' TYPE 'S' DISPLAY LIKE 'E'.
   ENDIF.
 
