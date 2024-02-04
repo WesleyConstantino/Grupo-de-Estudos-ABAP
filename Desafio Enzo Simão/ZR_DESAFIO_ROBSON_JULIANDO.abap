@@ -168,17 +168,11 @@ AT SELECTION-SCREEN OUTPUT.
 
 "Início da execusão
 START-OF-SELECTION.
-*<---- 21/01/2024 - Estudos - Wesley Constantino - Início
-*  IF rb_cli EQ 'X'.
-*
-*    IF p_nome IS NOT INITIAL AND p_rg IS NOT INITIAL AND p_cpf IS NOT INITIAL.
-*     PERFORM f_cadastra_cliente.
-*    ELSE.
-*     MESSAGE s208(00) WITH 'Preencha os dados obrigatórios!' DISPLAY LIKE 'E'.
-*    ENDIF.
-*
-*  ELSEIF rb_cven EQ 'X'.
-  IF rb_unic EQ 'X'.
+
+*<---- 04/02/2024 - Estudos - Wesley Constantino - Início
+*  IF rb_unic EQ 'X'.
+  IF rb_unic EQ 'X' AND rb_rven  EQ ' '.
+*<---- 04/02/2024 - Estudos - Wesley Constantino - Fim
 
     IF p_nome IS NOT INITIAL AND p_rg IS NOT INITIAL AND p_cpf IS NOT INITIAL.
      PERFORM f_cadastra_cliente.
@@ -186,19 +180,6 @@ START-OF-SELECTION.
      MESSAGE s208(00) WITH 'Preencha os dados obrigatórios!' DISPLAY LIKE 'E'.
     ENDIF.
   ENDIF.
-*<---- 23/01/2024 - Estudos - Wesley Constantino - Início
-*Evento caminho de upload
-  AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
-*<---- 23/01/2024 - Estudos - Wesley Constantino - Fim
-
-  IF rb_massa EQ 'X'.
-*<---- 23/01/2024 - Estudos - Wesley Constantino - Início
-   PERFORM: f_exibe_popup_caminho_upload,
-            f_gui_upload,
-            f_split_upload.
-*<---- 23/01/2024 - Estudos - Wesley Constantino - Fim
-  ENDIF.
-*<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
 
     IF rb_cven EQ 'X' AND p_dat_vd IS NOT INITIAL AND p_rg2 IS NOT INITIAL AND p_cpf2 IS NOT INITIAL AND p_prod IS NOT INITIAL AND p_valor IS NOT INITIAL.
      PERFORM  f_cadastra_venda.
@@ -217,6 +198,17 @@ START-OF-SELECTION.
 *<---- 21/01/2024 - Estudos - Wesley Constantino - Fim
     PERFORM f_relatorio_de_vendas.
   ENDIF.
+
+*<---- 04/02/2024 - Estudos - Wesley Constantino - Início
+*Evento caminho de upload
+  AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+
+  IF rb_massa EQ 'X'.
+   PERFORM: f_exibe_popup_caminho_upload,
+            f_gui_upload,
+            f_split_upload.
+  ENDIF.
+*<---- 04/02/2024 - Estudos - Wesley Constantino - Início
 
 *&---------------------------------------------------------------------*
 *&      Form  f_cadastra_cliente
@@ -612,7 +604,7 @@ FORM f_modifica_tela .
         screen-active    = 0.
       ENDIF.
 
-     IF screen-group1 EQ 'upl'.
+     IF screen-group1 EQ 'UPL'.
         screen-invisible = 1.
         screen-input     = 0.
         screen-active    = 0.
@@ -646,7 +638,7 @@ FORM f_modifica_tela .
         screen-active    = 0.
       ENDIF.
 
-      IF screen-group1 EQ 'upl'.
+      IF screen-group1 EQ 'UPL'.
         screen-invisible = 1.
         screen-input     = 0.
         screen-active    = 0.
@@ -658,7 +650,7 @@ FORM f_modifica_tela .
 **rb_massa
       IF rb_massa EQ 'X'.
 
-      IF screen-group1 EQ 'upl'.
+      IF screen-group1 EQ 'UPL'.
         screen-invisible = 0.
         screen-input     = 1.
         screen-active    = 1.
@@ -675,7 +667,7 @@ FORM f_modifica_tela .
 *rb_unic
       IF rb_unic EQ 'X'.
 
-      IF screen-group1 EQ 'upl'.
+      IF screen-group1 EQ 'UPL'.
         screen-invisible = 1.
         screen-input     = 0.
         screen-active    = 0.
